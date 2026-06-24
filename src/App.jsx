@@ -22,33 +22,11 @@ const ArrowRight = ({ style = {} }) => (
 
 /* ── FILE PARSING ─────────────────────────────────────────────────────────── */
 
-function parseDocStructured(xmlText) {
-  const answers = [];
-  const paragraphRegex = /<w:p>[\s\S]*?<\/w:p>/g;
-  const paragraphs = xmlText.match(paragraphRegex) || [];
-  for (const para of paragraphs) {
-    if (para.includes("F3E8FF") || para.includes("c8e1ff") || para.includes("C8E1FF")) {
-      const textMatches = para.match(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g) || [];
-      const text = textMatches
-        .map(t => t.replace(/<w:t[^>]*>/, "").replace(/<\/w:t>/, ""))
-        .join("").trim();
-      if (text) answers.push(text);
-    }
-  }
-  return answers;
-}
-
 function extractPlainTextFromXml(xmlText) {
   const textMatches = xmlText.match(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g) || [];
   return textMatches
     .map(t => t.replace(/<w:t[^>]*>/, "").replace(/<\/w:t>/, ""))
     .join(" ").replace(/\s+/g, " ").trim();
-}
-
-function parseDayLabel(xmlText, fallback) {
-  const match = xmlText.match(/<w:t>([^<]*(?:Day|day|Päivä|päivä)\s*\d+[^<]*)<\/w:t>/);
-  if (match) return match[1].split("—")[0].trim();
-  return fallback;
 }
 
 function parseDayLabelFromText(text, fallback) {
@@ -60,11 +38,6 @@ function parseDayLabelFromText(text, fallback) {
 function parseFile(text, fileName) {
   const isXml = text.includes("<w:") || text.includes("<?xml");
   if (isXml) {
-    const structured = parseDocStructured(text);
-    if (structured.length > 0) {
-      const label = parseDayLabel(text, fileName.replace(/\.(doc|docx|txt)$/i, ""));
-      return [{ label, answers: structured }];
-    }
     const plainText = extractPlainTextFromXml(text);
     if (plainText.length > 20) return splitIntoDays(plainText, fileName);
     return [];
