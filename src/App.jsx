@@ -47,7 +47,7 @@ function parseFile(text, fileName) {
 }
 
 function splitIntoDays(text, fileName) {
-  const dayPattern = /(?:^|\n)\s*(?:#{0,3}\s*)?(?:Day|day|Päivä|päivä)\s*(\d+)\b/gi;
+  const dayPattern = /(?:^|[\n\s])(?:Day|day|Päivä|päivä)\s*(\d+)\b/gi;
   const matches = [...text.matchAll(dayPattern)];
   if (matches.length >= 2) {
     return matches.map((m, i) => {
